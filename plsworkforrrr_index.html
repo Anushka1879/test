@@ -1,0 +1,1913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAHE Collab Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #8B5CF6; /* Purple 500 */
+            --color-secondary: #14B8A6; /* Teal 500 */
+            --color-background: #0F172A; /* Slate 900 (Dark) */
+            --color-card: #1E293B; /* Slate 800 (Darker Card) */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-background);
+            color: #E2E8F0; /* Slate 200 */
+        }
+        .card-base {
+            background-color: var(--color-card);
+            border-radius: 1.5rem; /* xl */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid #334155; /* Slate 700 */
+        }
+        .text-primary { color: var(--color-primary); }
+        .bg-primary { background-color: var(--color-primary); }
+        .text-secondary { color: var(--color-secondary); }
+        .bg-secondary { background-color: var(--color-secondary); }
+
+        /* Glowing Card Style for Details */
+        .card-glow {
+            border: 2px solid var(--color-primary);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.5), 0 0 5px rgba(139, 92, 246, 0.7);
+            background-color: rgba(30, 41, 59, 0.8); /* Slightly transparent card background */
+            backdrop-filter: blur(8px); /* Glass-like blur */
+        }
+        
+        /* Custom Scrollbar for dark theme */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--color-card); }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748B; }
+
+        /* Animation for the chat message and staggered card entrance */
+        .message-sent-enter { opacity: 0; transform: translateY(10px); }
+        .message-sent-enter-active { opacity: 1; transform: translateY(0); transition: opacity 300ms, transform 300ms; }
+        
+        @keyframes fadeInSlideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .stagger-item {
+            animation: fadeInSlideUp 0.5s ease-out forwards;
+            opacity: 0; /* Initial state */
+        }
+        
+        /* Project Image Hover Effect */
+        .project-image-container {
+            overflow: hidden;
+        }
+        .project-image {
+            transition: transform 0.5s ease;
+        }
+        .project-image-container:hover .project-image {
+            transform: scale(1.05);
+        }
+
+        /* Compatibility Score Indicator */
+        .score-bar {
+            height: 10px;
+            border-radius: 9999px;
+            overflow: hidden;
+            background-color: #334155;
+        }
+        .score-fill {
+            height: 100%;
+            transition: width 0.5s ease, background-color 0.5s ease;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <svg style="display: none;">
+        <symbol id="icon-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
+        <symbol id="icon-briefcase" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></symbol>
+        <symbol id="icon-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.9 1.9 0 0 1-2.06 0L2 7"/></symbol>
+        <symbol id="icon-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></symbol>
+        <symbol id="icon-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+        <symbol id="icon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+        <symbol id="icon-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+        <symbol id="icon-map-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></symbol>
+        <symbol id="icon-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></symbol>
+        <symbol id="icon-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></symbol>
+        <symbol id="icon-layout-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></symbol>
+        <symbol id="icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></symbol>
+        <symbol id="icon-zap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></symbol>
+        <symbol id="icon-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+        <symbol id="icon-clipboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></symbol>
+        <symbol id="icon-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
+    </svg>
+
+    <div id="app" class="pb-20 lg:pb-0">
+        </div>
+
+    <nav id="mobile-nav" class="fixed bottom-0 left-0 right-0 lg:hidden card-base z-50 border-t border-slate-700/50">
+        <ul class="flex justify-around py-3">
+            <li class="nav-item" data-view="dashboard"></li>
+            <li class="nav-item" data-view="collab-board"></li>
+            <li class="nav-item" data-view="events"></li>
+            <li class="nav-item" data-view="messages"></li>
+            <li class="nav-item" data-view="profile"></li>
+        </ul>
+    </nav>
+
+    <script>
+        // --- Gemini API Configuration ---
+        const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent";
+        const apiKey = ""; // Canvas environment will provide the key at runtime
+
+        // --- Mock Data ---
+        const MOCK_DATA = {
+            projects: [
+                { 
+                    id: 'p1', name: "AI Course Planner", type: "AI/ML", status: "In Progress", members: 4, date: "2025-12-15", slots: 4, maxSlots: 5, 
+                    description: "Developing a generative AI tool to help students design personalized course paths based on career goals.", 
+                    timeline: "Phase 2: Model Training & UI Integration (80% Complete)", 
+                    skills: ['Python', 'TensorFlow', 'React'], 
+                    visual: {bg: '#F59E0B', text: 'AI'},
+                    // NEW Data for Manage Project View
+                    team: [
+                        { id: 'u0', name: 'Kai Sharma (You)', role: 'Project Lead / Backend', contribution: 'Developing the core generative model and API.' },
+                        { id: 'u2', name: 'Rohan Patil', role: 'Hardware Integration', contribution: 'Consulting on potential hardware deployment.' },
+                        { id: 'u4', name: 'Alia Singh', role: 'UX/UI Design', contribution: 'Designing the user interface and flow.' },
+                        { id: 'u5', name: 'Vikram Mehta', role: 'Frontend Dev', contribution: 'Implementing the React-based frontend.' },
+                    ],
+                    pastMeetups: [
+                        { date: '2025-10-28', title: 'Phase 2 Kickoff', notes: 'Defined model architecture and UI wireframes.' },
+                        { date: '2025-10-20', title: 'Initial Brainstorm', notes: 'Finalized project scope and core features.' },
+                    ],
+                    resources: [
+                        { name: 'Project Brief.pdf', link: '#' },
+                        { name: 'Figma Wireframes', link: '#' },
+                        { name: 'GitHub Repository', link: '#' },
+                        { name: 'Model Training Data (Drive)', link: '#' },
+                    ],
+                    groupChatId: 'chat_p1'
+                },
+                { id: 'p2', name: "Waste Management IoT", type: "IoT/Hardware", status: "Planning", members: 2, date: "2026-03-01", slots: 2, maxSlots: 5, description: "Building a sensor network for smart waste bins to optimize collection routes across the campus.", timeline: "Phase 1: Hardware Prototyping & Location Mapping (30% Complete)", skills: ['C++', 'Raspberry Pi', 'Data Analysis'], visual: {bg: '#10B981', text: 'IOT'}, team: [], pastMeetups: [], resources: [], groupChatId: 'chat_p2' },
+                { id: 'p3', name: "Local History Documentation", type: "Research", status: "Completed", members: 5, date: "2025-09-20", slots: 5, maxSlots: 5, description: "A comprehensive digital archive of historical documents and oral histories from the surrounding region.", timeline: "Completed & Published", skills: ['Interviewing', 'Archival Research'], visual: {bg: '#3B82F6', text: 'HIST'}, team: [], pastMeetups: [], resources: [], groupChatId: 'chat_p3' },
+                { id: 'p4', name: "Peer Tutoring Network", type: "Software Dev", status: "In Progress", members: 3, date: "2026-01-20", slots: 3, maxSlots: 4, description: "Creating a mobile-friendly platform for booking peer tutoring sessions for complex courses.", timeline: "Phase 3: Beta Testing (75% Complete)", skills: ['Vue.js', 'Firebase', 'UX/UI Design'], visual: {bg: '#D946EF', text: 'DEV'}, team: [], pastMeetups: [], resources: [], groupChatId: 'chat_p4' },
+                { id: 'p5', name: "Urban Farming Sensor Array", type: "Sustainable Tech", status: "Planning", members: 1, date: "2026-04-10", slots: 1, maxSlots: 3, description: "A low-cost sensor array for micro-climate monitoring in vertical farming setups.", timeline: "Phase 1: Concept & Parts Acquisition (15% Complete)", skills: ['Arduino', 'Agriculture', 'CAD'], visual: {bg: '#EF4444', text: 'FARM'}, team: [], pastMeetups: [], resources: [], groupChatId: 'chat_p5' },
+            ],
+            events: [
+                { id: 'e1', title: "Tech Innovation Summit 2025", location: "Convention Center Hall A", time: "9:00 AM - 5:00 PM", host: "CS Department", date: "2025-11-10", description: "A day dedicated to showcasing cutting-edge student projects in AI, IoT, and robotics. Keynote speaker: Dr. V. Krishna.", slots: 120, totalSlots: 200, isBookmarked: true },
+                { id: 'e2', title: "Sustainable Campus Workshop", location: "Engineering Block, Room 302", time: "2:00 PM - 4:00 PM", host: "Green Initiative Club", date: "2025-11-28", description: "Learn how to reduce your carbon footprint and contribute to the campus's sustainability goals. Limited seats available!", slots: 30, totalSlots: 50, isBookmarked: false },
+                { id: 'e3', title: "Financial Modeling Seminar", location: "Online (Zoom)", time: "6:00 PM - 7:30 PM", host: "Finance Club", date: "2025-11-05", description: "An introductory session on advanced financial modeling techniques using Python.", slots: 80, totalSlots: 100, isBookmarked: true },
+            ],
+            meetups: [
+                { id: 'mt1', title: 'Python Study Group', status: 'Confirmed', time: 'Wed, 6:00 PM', location: 'Library Pod B' },
+                { id: 'mt2', title: 'Data Science Q&A', status: 'Confirmed', time: 'Fri, 11:00 AM', location: 'Zoom Link' },
+                { id: 'mt3', title: 'Robotics Team Brainstorm', status: 'Pending', time: 'Mon, 7:30 PM', location: 'Tech Lab' },
+                { id: 'mt4', title: 'Hackathon Prep Session', status: 'Pending', time: 'Sat, 1:00 PM', location: 'Cafeteria' },
+                { id: 'mt5', title: 'UX Design Review', status: 'Confirmed', time: 'Thu, 3:00 PM', location: 'Design Studio' },
+            ],
+            messages: {
+                list: [
+                    { id: 'm1', sender: 'Jane Doe (Project Lead)', subject: 'Quick question about the AI Model', time: '10:30 AM', unread: true },
+                    { id: 'm2', sender: 'Dr. Smith (Faculty)', subject: 'Grade submission deadline reminder', time: 'Yesterday', unread: false },
+                    { id: 'm3', sender: 'Campus Events', subject: 'New Hackathon registration open!', time: '2 days ago', unread: false },
+                ],
+                'm1': [
+                    { type: 'received', text: "Hi, checking in on the model training status. Did we get the data augmentation script running properly?", time: '10:30 AM' },
+                    { type: 'sent', text: "Yes, it finished running overnight. The accuracy looks promising, but I'm checking for overfitting now.", time: '10:45 AM' },
+                ],
+                'm2': [],
+                'm3': [],
+                // NEW: Project Group Chats
+                'chat_p1': [
+                    { type: 'received', sender: 'Alia Singh', text: 'Hey team, I just pushed the new wireframes to Figma. Let me know what you think!', time: 'Yesterday' },
+                    { type: 'sent', text: 'Looks great, Alia! Vikram, will this be hard to implement?', time: 'Yesterday' },
+                    { type: 'received', sender: 'Vikram Mehta', text: 'Should be straightforward. I can start on the main dashboard component tomorrow.', time: 'Today' },
+                ],
+                'chat_p2': [],
+                'chat_p3': [],
+                'chat_p4': [],
+                'chat_p5': [],
+            },
+            profile: {
+                name: 'New User',
+                role: 'Student',
+                college: '',
+                course: '',
+                status: 'Ready to collaborate!',
+                skills: [],
+                hobbies: [],
+                portfolio: '',
+                image: 'https://placehold.co/128x128/8B5CF6/ffffff?text=U'
+            },
+            people: [
+                { id: 'u1', name: 'Dr. Anya Varma', role: 'Faculty Advisor, CS', specialty: 'Distributed Systems', status: 'Available for mentorship', skills: ['C++', 'Networking', 'Algorithms'], image: 'https://placehold.co/128x128/8B5CF6/ffffff?text=AV' },
+                { id: 'u2', name: 'Rohan Patil', role: 'B.Tech Student', specialty: 'IoT & Hardware', status: 'Working on a new prototype', skills: ['C++', 'Raspberry Pi', 'Hardware Prototyping'], image: 'https://placehold.co/128x128/8B5CF6/ffffff?text=RP' },
+                { id: 'u3', name: 'Sara Khan', role: 'M.Sc. Research', specialty: 'Bioinformatics', status: 'Looking for a data visualization expert', skills: ['R', 'Data Visualization', 'Genomics'], image: 'https://placehold.co/128x128/8B5CF6/ffffff?text=SK' },
+                { id: 'u4', name: 'Alia Singh', role: 'B.Des Student', specialty: 'UX/UI Design', status: 'Available for design consultation', skills: ['Figma', 'User Research', 'Prototyping'], image: 'https://placehold.co/128x128/8B5CF6/ffffff?text=AS' },
+                { id: 'u5', name: 'Vikram Mehta', role: 'B.Tech CS Student', specialty: 'Web Development', status: 'Looking for a backend role', skills: ['React', 'Node.js', 'MongoDB', 'Python'], image: 'https://placehold.co/128x128/8B5CF6/ffffff?text=VM' },
+            ]
+        };
+
+        // --- State Management ---
+        const state = {
+            currentView: 'splash', // splash, onboarding-verify, onboarding, dashboard, collab-board, create-project, project-detail, manage-project, events, event-detail, meetups, create-meetup, messages, message-detail, profile, people-search, people-detail
+            detailId: null,
+            bookmarkedEvents: MOCK_DATA.events.filter(e => e.isBookmarked).map(e => e.id),
+            registeredEvents: [], // NEW: Array of registered event IDs
+            simulatedMessages: [], // Will be set by setView
+            userId: '', // Mock user ID - Will be set during onboarding
+            userEmail: '', // NEW: Store verified email
+            connections: [], // Array of connected user IDs
+            manageProjectTab: 'overview', // For the manage project page tabs
+
+            // New LLM states
+            projectPitch: null,
+            isProjectPitchLoading: false,
+            eventSuggestions: null,
+            isEventSuggestionsLoading: false,
+            aiSuggestions: null, // Stores the JSON array from Gemini for user compatibility
+            isAiSuggestionsLoading: false,
+            activePeopleTab: 'all', // 'all' or 'ai'
+
+            // NEW: State for Join Requests
+            pendingRequests: [], // Array of project IDs where a join request has been sent
+        };
+
+        // --- Gemini API Helper Function with Backoff ---
+        async function getGeminiResponse(userQuery, systemPrompt, useSearch = false, schema = null) {
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: systemPrompt ? { parts: [{ text: systemPrompt }] } : undefined,
+                tools: useSearch ? [{ "google_search": {} }] : undefined,
+                generationConfig: schema ? { 
+                    responseMimeType: "application/json", 
+                    responseSchema: schema 
+                } : undefined,
+            };
+
+            let response = null;
+            let retries = 0;
+            const maxRetries = 5;
+
+            while (retries < maxRetries) {
+                try {
+                    response = await fetch(`${API_URL}?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.status === 429) { // Rate limit
+                        retries++;
+                        const delay = Math.pow(2, retries) * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        continue;
+                    }
+
+                    if (!response.ok) {
+                        throw new Error(`API call failed with status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    
+                    if (schema) {
+                        const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                        if (jsonText) return JSON.parse(jsonText);
+                        throw new Error("No JSON text received.");
+                    } else {
+                        const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "Generation failed.";
+                        return text.trim();
+                    }
+
+                } catch (error) {
+                    console.error("Gemini API Error:", error);
+                    return schema ? null : "An error occurred during AI generation. Check console for details.";
+                }
+            }
+            return schema ? null : "The AI service is currently too busy. Please try again later.";
+        }
+
+        // --- LLM Feature Handlers ---
+
+        async function generateProjectPitch(project) {
+            state.isProjectPitchLoading = true;
+            state.projectPitch = null;
+            render();
+
+            const userQuery = `Project Name: ${project.name}. Project Type: ${project.type}. Description: ${project.description}. Timeline: ${project.timeline}. Required Skills: ${project.skills.join(', ')}.`;
+            const systemPrompt = "You are a dynamic university project pitch writer. Based on the provided project details, generate a single, highly engaging, 3-sentence maximum 'Elevator Pitch' for the project. The pitch must clearly state the problem, the solution, and the potential impact for a potential collaborator or investor.";
+            
+            state.projectPitch = await getGeminiResponse(userQuery, systemPrompt);
+            state.isProjectPitchLoading = false;
+            render();
+        }
+
+        async function generateEventSuggestions(event) {
+            state.isEventSuggestionsLoading = true;
+            state.eventSuggestions = null;
+            render();
+
+            const userQuery = `Event: ${event.title} on ${event.date}. Host: ${event.host}. Description: ${event.description}. Location: ${event.location}. Generate three distinct, creative, and relevant ideas to enhance this event (e.g., a theme, a guest activity, or a unique networking format). Present them as a numbered list.`;
+            const systemPrompt = "You are a creative student event planner. Generate highly relevant and engaging ideas for the provided university event. Ensure the ideas align with the event's theme and host's focus.";
+            
+            state.eventSuggestions = await getGeminiResponse(userQuery, systemPrompt);
+            state.isEventSuggestionsLoading = false;
+            render();
+        }
+
+        async function generateAiSuggestions() {
+            if (state.isAiSuggestionsLoading || state.aiSuggestions) return; // Prevent re-call
+            
+            state.isAiSuggestionsLoading = true;
+            render();
+
+            const userProfile = MOCK_DATA.profile;
+            const userSkills = userProfile.skills.join(', ');
+            const userQuery = `User Profile - Role: ${userProfile.role}, Course: ${userProfile.course}, Skills: ${userSkills}, Status: ${userProfile.status}. People in the network: ${MOCK_DATA.people.map(p => `${p.name} (${p.role}, ${p.specialty}, Skills: ${p.skills.join('|')})`).join('; ')}. Suggest potential collaborators for this user.`;
+            
+            const systemPrompt = "You are an AI collaboration matching engine. Analyze the user's profile and the list of people in the network. For the top 5 most compatible people (excluding the user themselves), generate a compatibility score (0-100) and a brief, specific rationale (1-2 sentences) explaining the match. Respond only with a JSON array that strictly follows the provided schema.";
+            
+            const schema = {
+                type: "ARRAY",
+                items: {
+                    type: "OBJECT",
+                    properties: {
+                        id: { type: "STRING" },
+                        score: { type: "NUMBER" },
+                        rationale: { type: "STRING" }
+                    },
+                    required: ["id", "score", "rationale"]
+                }
+            };
+
+            const suggestions = await getGeminiResponse(userQuery, systemPrompt, false, schema);
+
+            if (suggestions && Array.isArray(suggestions)) {
+                state.aiSuggestions = suggestions;
+            } else {
+                // Fallback: use randomized mock data if API fails or returns invalid structure
+                state.aiSuggestions = MOCK_DATA.people.map(p => ({
+                    id: p.id,
+                    score: Math.floor(Math.random() * 50) + 50,
+                    rationale: "AI analysis pending/failed. (Random score assigned.)"
+                }));
+            }
+            
+            state.isAiSuggestionsLoading = false;
+            render();
+        }
+
+        // --- Helper Functions ---
+        
+        /** NEW HELPER FUNCTIONS **/
+        function isUserMember(project) {
+            // Note: 'u0' is the mock ID for 'Kai Sharma (You)' in the mock data.
+            // This checks if the current user is part of the project's team.
+            return project.team.some(member => member.id === 'u0');
+        }
+
+        function isRequestPending(projectId) {
+            return state.pendingRequests.includes(projectId);
+        }
+
+        function handleJoinRequest(projectId) {
+            if (!state.pendingRequests.includes(projectId)) {
+                state.pendingRequests.push(projectId);
+                // The re-render will update the button state to "Request Sent"
+                render(); 
+                // Simple notification for the simulated action
+                setTimeout(() => console.log('Request to Join sent for project ' + projectId + ' (Simulated).'), 100);
+            }
+        }
+        /** END NEW HELPER FUNCTIONS **/
+
+        function setView(view, id = null) {
+            state.currentView = view;
+            state.detailId = id;
+
+            if (view === 'message-detail') {
+                if (!MOCK_DATA.messages[id]) {
+                    MOCK_DATA.messages[id] = [];
+                }
+                state.simulatedMessages = MOCK_DATA.messages[id];
+            }
+            
+            if(view === 'manage-project') {
+                state.manageProjectTab = 'overview'; // Reset to default tab
+            }
+
+            // Clear LLM outputs when navigating away from the detail view
+            if (!view.includes('-detail') && view !== 'people-search' && view !== 'manage-project') {
+                state.projectPitch = null;
+                state.eventSuggestions = null;
+            }
+            
+            if (view === 'people-search' && !state.aiSuggestions) {
+                // Pre-fetch suggestions when navigating to the people-search view for the first time
+                generateAiSuggestions();
+            }
+
+            render();
+        }
+
+        function setActivePeopleTab(tab) {
+            state.activePeopleTab = tab;
+            render();
+        }
+
+        function toggleBookmark(eventId) {
+            const index = state.bookmarkedEvents.indexOf(eventId);
+            if (index > -1) {
+                state.bookmarkedEvents.splice(index, 1);
+            } else {
+                state.bookmarkedEvents.push(eventId);
+            }
+            render();
+        }
+
+        // --- NEW: Connection Toggle Handler ---
+        function handleConnectToggle(personId) {
+            const index = state.connections.indexOf(personId);
+            if (index > -1) {
+                state.connections.splice(index, 1); // Disconnect
+            } else {
+                state.connections.push(personId); // Connect
+            }
+            render();
+        }
+        // --- END NEW: Connection Toggle Handler ---
+
+
+        function handleOnboardingVerifySubmit() {
+            const email = document.getElementById('onboard-email')?.value.trim();
+            const otp = document.getElementById('onboard-otp')?.value.trim();
+
+            if (!email || !otp) {
+                alert('Please enter both email and OTP.');
+                return;
+            }
+
+            // Mock verification logic
+            if (otp === '123456') {
+                state.userEmail = email;
+                setView('onboarding');
+            } else {
+                alert('Invalid OTP. Please try "123456" for demo.');
+            }
+        }
+
+        function handleOnboardingSubmit() {
+            const name = document.getElementById('onboard-name')?.value.trim();
+            const college = document.getElementById('onboard-college')?.value.trim();
+            const course = document.getElementById('onboard-course')?.value.trim();
+            const skillsRaw = document.getElementById('onboard-skills')?.value.trim();
+            const hobbiesRaw = document.getElementById('onboard-hobbies')?.value.trim();
+            const portfolio = document.getElementById('onboard-portfolio')?.value.trim();
+            const role = document.getElementById('onboard-role')?.value;
+
+            if (!name || !college || !course || !skillsRaw || !role) {
+                alert('Please fill in all required fields (Name, Role, College, Course, Skills).');
+                return;
+            }
+
+            const skills = skillsRaw.split(',').map(s => s.trim()).filter(s => s.length > 0);
+            const hobbies = hobbiesRaw.split(',').map(s => s.trim()).filter(s => s.length > 0);
+
+            // Update MOCK_DATA.profile with user input
+            MOCK_DATA.profile.name = name;
+            MOCK_DATA.profile.role = role;
+            MOCK_DATA.profile.college = college;
+            MOCK_DATA.profile.course = course;
+            MOCK_DATA.profile.skills = skills;
+            MOCK_DATA.profile.hobbies = hobbies;
+            MOCK_DATA.profile.portfolio = portfolio;
+
+            // Generate a simple, unique user ID for the mock state.
+            state.userId = 'U-' + Math.floor(Math.random() * 1000);
+            
+            // Navigate to dashboard
+            setView('dashboard');
+        }
+
+        function handleCreateProjectSubmit() {
+            const name = document.getElementById('project-name')?.value.trim();
+            const type = document.getElementById('project-type')?.value.trim();
+            const desc = document.getElementById('project-desc')?.value.trim();
+            const skillsRaw = document.getElementById('project-skills')?.value.trim();
+            const slots = parseInt(document.getElementById('project-slots')?.value, 10);
+
+            if (!name || !type || !desc || !skillsRaw || isNaN(slots) || slots < 1) {
+                alert('Please fill in all required fields and ensure Max Team Size is a valid number.');
+                return;
+            }
+            
+            const skills = skillsRaw.split(',').map(s => s.trim()).filter(s => s.length > 0);
+            
+            const projectId = 'p' + (MOCK_DATA.projects.length + 1);
+            
+            const newProject = {
+                id: projectId,
+                name: name,
+                type: type,
+                status: "Planning",
+                members: 1, // Creator is the first member
+                date: new Date().toISOString().split('T')[0], // Today's date
+                slots: 1, 
+                maxSlots: slots + 1, // +1 for the creator
+                description: desc,
+                timeline: "Phase 1: Concept & Planning (0% Complete)",
+                skills: skills,
+                visual: {bg: '#374151', text: type.substring(0, 4).toUpperCase()},
+                // Creator is automatically the lead
+                team: [
+                    { id: 'u0', name: MOCK_DATA.profile.name, role: 'Project Lead', contribution: 'Initiator and lead researcher.' }
+                ],
+                pastMeetups: [],
+                resources: [],
+                groupChatId: 'chat_' + projectId
+            };
+
+            MOCK_DATA.projects.push(newProject);
+            setView('dashboard');
+        }
+        
+        // --- Message Handlers ---
+        function addMessage(chatId) {
+            const input = document.querySelector('.message-input');
+            const messageText = input.value.trim();
+            const button = document.querySelector('.send-button');
+
+            if (messageText === '') {
+                button.disabled = true;
+                return;
+            }
+
+            const newMessage = {
+                type: 'sent',
+                sender: MOCK_DATA.profile.name,
+                text: messageText,
+                time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+            };
+
+            if (!MOCK_DATA.messages[chatId]) {
+                MOCK_DATA.messages[chatId] = [];
+            }
+            MOCK_DATA.messages[chatId].push(newMessage);
+            input.value = '';
+            input.style.height = 'auto';
+            button.disabled = true;
+
+            setView('message-detail', chatId); // Re-render to show new message
+        }
+
+        function addProjectMessage(chatId) {
+            const input = document.querySelector('.project-chat-input');
+            const messageText = input.value.trim();
+            const button = document.querySelector('.project-send-button');
+
+            if (messageText === '') {
+                button.disabled = true;
+                return;
+            }
+
+            const newMessage = {
+                type: 'sent',
+                sender: MOCK_DATA.profile.name,
+                text: messageText,
+                time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+            };
+
+            if (!MOCK_DATA.messages[chatId]) {
+                MOCK_DATA.messages[chatId] = [];
+            }
+            MOCK_DATA.messages[chatId].push(newMessage);
+            input.value = '';
+            input.style.height = 'auto';
+            button.disabled = true;
+
+            // Re-render the manage-project view (chat tab)
+            render();
+            // Scroll to bottom manually since setView is not called
+            setTimeout(() => {
+                const history = document.getElementById('project-chat-history');
+                if (history) history.scrollTop = history.scrollHeight;
+                setupProjectChatListeners();
+            }, 50);
+        }
+
+        function handleChatKey(event, chatId) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                const chatInput = document.querySelector('.message-input');
+                if (chatInput && chatInput.value.trim() !== '') {
+                    addMessage(chatId);
+                }
+            }
+        }
+        
+        function handleProjectChatKey(event, chatId) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                const chatInput = document.querySelector('.project-chat-input');
+                if (chatInput && chatInput.value.trim() !== '') {
+                    addProjectMessage(chatId);
+                }
+            }
+        }
+
+        function setupChatListeners(chatId) {
+            const input = document.querySelector('.message-input');
+            const button = document.querySelector('.send-button');
+
+            if (input) {
+                input.oninput = () => {
+                    input.style.height = 'auto';
+                    input.style.height = input.scrollHeight + 'px';
+                    button.disabled = input.value.trim() === '';
+                };
+                input.onkeydown = (e) => handleChatKey(e, chatId);
+                button.onclick = () => addMessage(chatId);
+                button.disabled = input.value.trim() === '';
+            }
+        }
+
+        function setupProjectChatListeners(chatId) {
+            const project = MOCK_DATA.projects.find(p => p.id === state.detailId);
+            if (!project) return;
+            chatId = project.groupChatId;
+
+            const input = document.querySelector('.project-chat-input');
+            const button = document.querySelector('.project-send-button');
+            
+            if (input) {
+                input.oninput = () => {
+                    input.style.height = 'auto';
+                    input.style.height = input.scrollHeight + 'px';
+                    button.disabled = input.value.trim() === '';
+                };
+                input.onkeydown = (e) => handleProjectChatKey(e, chatId);
+                button.onclick = () => addProjectMessage(chatId);
+                button.disabled = input.value.trim() === '';
+            }
+        }
+
+        function handleRegister(eventId) {
+            if (!state.registeredEvents.includes(eventId)) {
+                state.registeredEvents.push(eventId);
+                render();
+                alert('You have successfully registered for the event!');
+            }
+        }
+
+        // --- View Renderers ---
+
+        function renderStatCard(title, value, icon, bgColor) {
+            return `
+                <div class="p-4 card-base text-center">
+                    <div class="flex items-center justify-center w-10 h-10 rounded-full mx-auto mb-3 ${bgColor}">
+                        <svg class="w-5 h-5 text-white"><use href="#${icon}"></use></svg>
+                    </div>
+                    <p class="text-3xl font-bold text-white">${value}</p>
+                    <p class="text-sm text-slate-400 mt-1">${title}</p>
+                </div>
+            `;
+        }
+
+        function renderDashboard() {
+            const activeProjects = MOCK_DATA.projects.filter(p => p.team.some(m => m.id === 'u0'));
+            const unreadMessages = MOCK_DATA.messages.list.filter(m => m.unread).length;
+            const upcomingEvents = MOCK_DATA.events.filter(e => new Date(e.date) >= new Date()).slice(0, 3);
+            const profileName = MOCK_DATA.profile.name.split(' ')[0] || 'User'; // Get first name
+
+            return `
+                <div class="p-4 sm:p-8 max-w-7xl mx-auto">
+                    <h1 class="text-4xl font-extrabold text-white mb-6">Welcome Back, ${profileName}</h1>
+                    <p class="text-slate-400 mb-8">Your collaboration and research overview.</p>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+                        ${renderStatCard('Active Projects', activeProjects.length, 'icon-briefcase', 'bg-primary')}
+                        ${renderStatCard('Unread Messages', unreadMessages, 'icon-mail', 'bg-secondary')}
+                        ${renderStatCard('Upcoming Events', upcomingEvents.length, 'icon-calendar', 'bg-red-500')}
+                        ${renderStatCard('Open Opportunities', MOCK_DATA.projects.length - activeProjects.length, 'icon-layout-grid', 'bg-yellow-500')}
+                    </div>
+
+                    <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-primary"><use href="#icon-briefcase"></use></svg>
+                        My Active Projects
+                        <button onclick="setView('collab-board')" class="ml-auto text-sm text-primary hover:text-white transition">View All &rarr;</button>
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+                        ${activeProjects.slice(0, 3).map((p, i) => renderDashboardProjectCard(p, i)).join('')}
+                    </div>
+
+                    <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-secondary"><use href="#icon-calendar"></use></svg>
+                        Upcoming Events
+                        <button onclick="setView('events')" class="ml-auto text-sm text-primary hover:text-white transition">View All &rarr;</button>
+                    </h2>
+                    <div class="space-y-4">
+                        ${upcomingEvents.map(renderEventRow).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderDashboardProjectCard(project, index) {
+            return `
+                <div onclick="setView('manage-project', '${project.id}')" class="card-base p-5 hover:border-primary transition duration-300 cursor-pointer stagger-item" style="animation-delay: ${index * 0.1}s;">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-xs font-bold px-3 py-1 rounded-full text-slate-900" style="background-color: ${project.visual.bg};">${project.visual.text}</span>
+                        ${renderTag(project.status, 'bg-primary/30', 'text-primary')}
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">${project.name}</h3>
+                    <p class="text-slate-400 text-sm mb-4 truncate">${project.description}</p>
+                    <div class="flex items-center text-sm text-slate-400">
+                        <svg class="w-4 h-4 mr-1"><use href="#icon-users"></use></svg>
+                        ${project.members} Members
+                        <svg class="w-4 h-4 ml-4 mr-1"><use href="#icon-clock"></use></svg>
+                        ${project.timeline.split(':')[0]}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderEventRow(event) {
+            const isBookmarked = state.bookmarkedEvents.includes(event.id);
+            const bookmarkIconClass = isBookmarked ? 'fill-red-500 text-red-500' : 'text-slate-500 hover:text-red-500';
+            
+            return `
+                <div class="card-base p-4 flex justify-between items-center hover:bg-slate-700/50 transition">
+                    <div class="flex items-center space-x-4">
+                        <div class="text-center p-2 rounded-lg border border-primary text-primary flex-shrink-0">
+                            <p class="text-lg font-bold leading-none">${new Date(event.date).toLocaleDateString('en-US', { day: 'numeric' })}</p>
+                            <p class="text-xs uppercase leading-none">${new Date(event.date).toLocaleDateString('en-US', { month: 'short' })}</p>
+                        </div>
+                        <div>
+                            <p onclick="setView('event-detail', '${event.id}')" class="text-white font-semibold cursor-pointer hover:text-primary transition">${event.title}</p>
+                            <p class="text-sm text-slate-400">${event.time} &bull; ${event.location}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3 flex-shrink-0">
+                        <button onclick="toggleBookmark('${event.id}')" class="p-2 rounded-full hover:bg-slate-700 transition">
+                            <svg class="w-5 h-5 ${bookmarkIconClass}"><use href="#icon-heart"></use></svg>
+                        </button>
+                        <button onclick="setView('event-detail', '${event.id}')" class="bg-primary text-white text-sm font-medium py-1 px-3 rounded-full hover:bg-indigo-600 transition">
+                            Details
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCollabBoard() {
+            const projects = MOCK_DATA.projects;
+            return `
+                <div class="p-4 sm:p-8 max-w-7xl mx-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <h1 class="text-3xl font-extrabold text-white">Collaboration Board</h1>
+                        <button onclick="setView('create-project')" class="bg-primary hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-full transition duration-300 flex items-center">
+                            <svg class="w-5 h-5 mr-1"><use href="#icon-plus"></use></svg>
+                            New Project
+                        </button>
+                    </div>
+                    <p class="text-slate-400 mb-8">Browse projects across AI, software development, research, and hardware projects to join or contribute to.</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        ${projects.map((p, i) => renderCollabBoardProjectCard(p, i)).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCollabBoardProjectCard(project, index) {
+            const isMember = isUserMember(project);
+            const isPending = isRequestPending(project.id);
+            const isFull = project.slots >= project.maxSlots;
+            const projectJson = JSON.stringify(project).replace(/"/g, '&quot;'); // Escape for inline JS
+
+            let buttonHtml;
+            let statusTag;
+            let clickActionView;
+
+            if (isMember) {
+                buttonHtml = `<button onclick="event.stopPropagation(); setView('manage-project', '${project.id}')" class="bg-secondary text-slate-900 font-semibold py-1 px-4 rounded-full hover:bg-teal-600 transition"> Manage Project </button>`;
+                statusTag = renderTag('Member', 'bg-secondary/30', 'text-secondary');
+                clickActionView = 'manage-project';
+            } else if (isPending) {
+                buttonHtml = `<button disabled class="bg-slate-500 text-white font-semibold py-1 px-4 rounded-full disabled:opacity-100 cursor-default"> Request Sent </button>`;
+                statusTag = renderTag('Pending', 'bg-yellow-500/30', 'text-yellow-500');
+                clickActionView = 'project-detail';
+            } else if (isFull) {
+                buttonHtml = `<button disabled class="bg-red-500 text-white font-semibold py-1 px-4 rounded-full disabled:opacity-100 cursor-default"> Team Full </button>`;
+                statusTag = renderTag('Full', 'bg-red-500/30', 'text-red-500');
+                clickActionView = 'project-detail';
+            } else {
+                buttonHtml = `<button onclick="event.stopPropagation(); handleJoinRequest('${project.id}')" class="bg-primary text-white text-sm font-medium py-1 px-4 rounded-full hover:bg-indigo-600 transition"> Join Project </button>`;
+                statusTag = renderTag('Open', 'bg-primary/30', 'text-primary');
+                clickActionView = 'project-detail';
+            }
+
+            return `
+                <div onclick="setView('${clickActionView}', '${project.id}')" class="card-base p-6 hover:border-primary transition duration-300 cursor-pointer stagger-item" style="animation-delay: ${index * 0.1}s;">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="text-xs font-bold px-3 py-1 rounded-full text-slate-900" style="background-color: ${project.visual.bg};">${project.visual.text}</span>
+                        ${statusTag}
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">${project.name}</h3>
+                    <p class="text-slate-400 text-sm mb-4 line-clamp-3">${project.description}</p>
+                    
+                    <div class="space-y-2 mb-4">
+                        <div class="flex items-center text-sm text-slate-300">
+                            <svg class="w-4 h-4 mr-2 text-primary"><use href="#icon-users"></use></svg>
+                            ${project.slots}/${project.maxSlots} Members
+                        </div>
+                        <div class="flex items-center text-sm text-slate-300">
+                            <svg class="w-4 h-4 mr-2 text-secondary"><use href="#icon-clock"></use></svg>
+                            ${project.timeline.split(':')[0]}
+                        </div>
+                    </div>
+
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        ${project.skills.slice(0, 3).map(skill => renderTag(skill, 'bg-slate-700/50', 'text-slate-300')).join('')}
+                    </div>
+                    
+                    <div class="flex justify-end mt-4">
+                        ${buttonHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+
+        function renderCreateProject() {
+            return `
+                <div class="p-4 sm:p-8 max-w-4xl mx-auto">
+                    <button onclick="setView('collab-board')" class="text-slate-400 hover:text-white mb-4 text-sm flex items-center">&larr; Back to Board</button>
+                    <div class="card-base p-6 sm:p-8">
+                        <h1 class="text-3xl font-extrabold text-white mb-2">Post a New Project</h1>
+                        <p class="text-primary mb-6">Find the perfect collaborators for your innovative idea.</p>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label for="project-name" class="block text-sm font-medium text-slate-300 mb-1">Project Name</label>
+                                <input type="text" id="project-name" class="w-full p-3 rounded-lg bg-slate-700 border border-slate-600 text-white placeholder-slate-400 focus:ring-secondary focus:border-secondary" placeholder="e.g., AI-Powered Course Recommender">
+                            </div>
+                            <div>
+                                <label for="project-type" class="block text-sm font-medium text-slate-300 mb-1">Project Category/Type</label>
+                                <input type="text" id="project-type" class="w-full p-3 rounded-lg bg-slate-700 border border-slate-600 text-white placeholder-slate-400 focus:ring-secondary focus:border-secondary" placeholder="e.g., Software Dev, Sustainable Tech">
+                            </div>
+                            <div>
+                                <label for="project-desc" class="block text-sm font-medium text-slate-300 mb-1">Detailed Description (Problem, Solution, Goals)</label>
+                                <textarea id="project-desc" class="w-full p-3 rounded-lg bg-slate-700 border border-slate-600 text-white placeholder-slate-400 focus:ring-secondary focus:border-secondary resize-none" rows="5" placeholder="Describe what the project aims to do, the technology involved, and the expected outcome."></textarea>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="project-skills" class="block text-sm font-medium text-slate-300 mb-1">Required Skills (comma-separated)</label>
+                                    <input type="text" id="project-skills" class="w-full p-3 rounded-lg bg-slate-700 border border-slate-600 text-white placeholder-slate-400 focus:ring-secondary focus:border-secondary" placeholder="e.g., Python, Arduino, UX/UI">
+                                </div>
+                                <div>
+                                    <label for="project-slots" class="block text-sm font-medium text-slate-300 mb-1">Max Team Size (excluding you)</label>
+                                    <input type="number" id="project-slots" class="w-full p-3 rounded-lg bg-slate-700 border border-slate-600 text-white placeholder-slate-400 focus:ring-secondary focus:border-secondary" placeholder="e.g., 3" min="1" value="3">
+                                </div>
+                            </div>
+                            <button onclick="handleCreateProjectSubmit()" class="w-full bg-secondary hover:bg-teal-600 text-slate-900 font-semibold py-3 rounded-lg transition duration-300 mt-4"> Post Project Opportunity </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderProjectDetail() {
+            const project = MOCK_DATA.projects.find(p => p.id === state.detailId);
+            if (!project) return `<div class="p-8 text-center text-red-400">Project not found.</div>`;
+
+            const isMember = isUserMember(project);
+            const isPending = isRequestPending(project.id);
+            const isFull = project.slots >= project.maxSlots;
+            const progressMatch = project.timeline.match(/\((\d+)%/);
+            const progressValue = progressMatch ? parseInt(progressMatch[1], 10) : 0;
+            const progressColor = progressValue < 50 ? 'bg-red-500' : progressValue < 80 ? 'bg-yellow-500' : 'bg-secondary';
+            const projectJson = JSON.stringify(project).replace(/"/g, '&quot;');
+
+            let actionButton;
+            if (isMember) {
+                actionButton = `<button onclick="setView('manage-project', '${project.id}')" class="bg-secondary hover:bg-teal-600 text-slate-900 font-bold py-3 px-6 rounded-full transition duration-300 flex-1">Manage Project</button>`;
+            } else if (isPending) {
+                actionButton = `<button disabled class="bg-slate-500 text-white font-bold py-3 px-6 rounded-full disabled:opacity-100 cursor-default flex-1">Request Sent</button>`;
+            } else if (isFull) {
+                actionButton = `<button disabled class="bg-red-500 text-white font-bold py-3 px-6 rounded-full disabled:opacity-100 cursor-default flex-1">Team Full</button>`;
+            } else {
+                actionButton = `<button onclick="handleJoinRequest('${project.id}')" class="bg-primary hover:bg-indigo-600 text-white font-bold py-3 px-6 rounded-full transition duration-300 flex-1">Join Project</button>`;
+            }
+            
+            return `
+                <div class="p-4 sm:p-8 max-w-4xl mx-auto">
+                    <button onclick="setView('collab-board')" class="text-slate-400 hover:text-white mb-4 text-sm flex items-center">&larr; Back to Collab Board</button>
+                    <div class="card-base p-6 sm:p-8 mb-8">
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <h2 class="text-3xl font-extrabold text-white mb-2">${project.name}</h2>
+                                <p class="text-xl text-primary font-semibold">${project.type}</p>
+                            </div>
+                            <span class="text-sm font-bold px-4 py-2 rounded-full ${isMember ? 'bg-secondary/30 text-secondary' : 'bg-slate-600/50 text-slate-300'}">${isMember ? 'Your Project' : 'Open Opportunity'}</span>
+                        </div>
+
+                        <div class="flex space-x-4 mb-6">
+                            ${actionButton}
+                            <button class="bg-slate-700 hover:bg-slate-600 text-white font-semibold py-3 px-6 rounded-full transition duration-300 w-24">Message</button>
+                        </div>
+
+                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                            ${renderInfoChip('icon-layout-grid', 'Type', project.type)}
+                            ${renderInfoChip('icon-users', 'Members', `${project.slots}/${project.maxSlots}`)}
+                            ${renderInfoChip('icon-calendar', 'Launch', new Date(project.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }))}
+                            ${renderInfoChip('icon-clock', 'Timeline', project.timeline.split(':')[0])}
+                        </div>
+
+                        <h3 class="text-2xl font-bold text-white mb-4 border-b border-slate-700 pb-2">Project Overview</h3>
+                        <p class="text-slate-300 mb-6">${project.description}</p>
+
+                        <h3 class="text-2xl font-bold text-white mb-4 border-b border-slate-700 pb-2">Progress</h3>
+                        <div class="mb-6">
+                            <p class="text-sm text-slate-400 mb-2">${project.timeline}</p>
+                            <div class="score-bar h-3">
+                                <div class="score-fill ${progressColor}" style="width: ${progressValue}%;"></div>
+                            </div>
+                        </div>
+
+                        <h3 class="text-2xl font-bold text-white mb-4 border-b border-slate-700 pb-2">Required Skills</h3>
+                        <div class="flex flex-wrap gap-3 mb-6">
+                            ${project.skills.map(skill => renderTag(skill, 'bg-primary/30', 'text-primary')).join('')}
+                        </div>
+
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-2xl font-bold text-white">Quick Pitch</h3>
+                            <button onclick="generateProjectPitch(${projectJson})" class="bg-slate-700 text-white text-sm font-medium py-1 px-3 rounded-full hover:bg-slate-600 transition">
+                                ${state.isProjectPitchLoading ? 'Generating...' : 'Generate Pitch with AI'}
+                            </button>
+                        </div>
+                        <div class="card-base p-4 border-l-4 border-secondary">
+                            <p class="text-slate-300 italic">
+                                ${state.projectPitch || (state.isProjectPitchLoading ? 'AI is crafting a compelling pitch...' : 'Click "Generate Pitch with AI" to get a concise elevator pitch for this project.')}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getProgressColor(score) {
+            if (score < 30) return 'bg-red-500';
+            if (score < 70) return 'bg-yellow-500';
+            return 'bg-secondary';
+        }
+
+        function renderManageTab(tabName, label, icon) {
+            const isActive = state.manageProjectTab === tabName;
+            const activeClass = isActive ? 'border-primary text-primary' : 'border-transparent text-slate-400 hover:text-white';
+            return `
+                <button onclick="state.manageProjectTab = '${tabName}'; render();" class="flex items-center space-x-2 py-3 px-4 border-b-2 font-medium transition duration-300 ${activeClass}">
+                    <svg class="w-5 h-5"><use href="#${icon}"></use></svg>
+                    <span>${label}</span>
+                </button>
+            `;
+        }
+        
+        function renderManageOverview(project) {
+            const progressMatch = project.timeline.match(/\((\d+)%/);
+            const progressValue = progressMatch ? parseInt(progressMatch[1], 10) : 0;
+            const progressColor = getProgressColor(progressValue);
+
+            return `
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-2xl font-bold text-white mb-3">Current Status</h3>
+                        <div class="p-5 card-base border-l-4 border-secondary">
+                            <p class="font-semibold text-white mb-2">${project.timeline}</p>
+                            <div class="score-bar h-4">
+                                <div class="score-fill ${progressColor}" style="width: ${progressValue}%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-2xl font-bold text-white mb-3">Key Information</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            ${renderInfoChip('icon-layout-grid', 'Type', project.type)}
+                            ${renderInfoChip('icon-calendar', 'Date Started', new Date(project.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }))}
+                            ${renderInfoChip('icon-users', 'Max Slots', project.maxSlots)}
+                            ${renderInfoChip('icon-zap', 'Project ID', project.id)}
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-2xl font-bold text-white mb-3">Required Skills</h3>
+                        <div class="flex flex-wrap gap-3">
+                            ${project.skills.map(skill => renderTag(skill, 'bg-primary/30', 'text-primary')).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderManageTeam(project) {
+            return `
+                <div class="space-y-6">
+                    <h3 class="text-2xl font-bold text-white mb-4">Team Members (${project.team.length}/${project.maxSlots})</h3>
+                    <div class="space-y-4">
+                        ${project.team.map(member => `
+                            <div class="p-4 card-base flex justify-between items-center">
+                                <div class="flex items-center space-x-4">
+                                    <img src="https://placehold.co/128x128/8B5CF6/ffffff?text=${member.name.charAt(0)}" alt="${member.name}" class="w-10 h-10 rounded-full object-cover">
+                                    <div>
+                                        <p class="font-semibold text-white">${member.name}</p>
+                                        <p class="text-sm text-primary">${member.role}</p>
+                                        <p class="text-xs text-slate-400 mt-1">${member.contribution}</p>
+                                    </div>
+                                </div>
+                                ${member.id === 'u0' ? renderTag('You', 'bg-secondary/30', 'text-secondary') : '<button class="bg-primary text-white text-sm py-1 px-3 rounded-full hover:bg-indigo-600 transition">Message</button>'}
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="border-t border-slate-700 pt-6 flex justify-between items-center">
+                        <p class="text-slate-400">Total ${project.maxSlots - project.slots} slots open.</p>
+                        <button class="bg-primary hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-full transition">
+                            View Requests (0)
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderManageResources(project) {
+            return `
+                <div class="space-y-6">
+                    <h3 class="text-2xl font-bold text-white mb-4">Project Meetups</h3>
+                    <div class="space-y-4">
+                        ${project.pastMeetups.length > 0 ? project.pastMeetups.map(meetup => `
+                            <div class="p-4 card-base">
+                                <p class="font-semibold text-white">${meetup.title}</p>
+                                <p class="text-xs text-primary mb-2">${meetup.date}</p>
+                                <p class="text-sm text-slate-400">${meetup.notes}</p>
+                            </div>
+                        `).join('') : '<p class="text-sm text-slate-500">No meetups recorded yet.</p>'}
+                    </div>
+
+                    <div class="border-t border-slate-700 pt-6">
+                        <h3 class="text-2xl font-bold text-white mb-4">Shared Resources</h3>
+                        ${project.resources.length > 0 ? project.resources.map(resource => `
+                            <a href="${resource.link}" target="_blank" class="p-4 card-base flex items-center justify-between hover:bg-slate-700 transition mb-3">
+                                <div class="flex items-center space-x-3">
+                                    <svg class="w-6 h-6 text-secondary"><use href="#icon-link"></use></svg>
+                                    <p class="font-semibold text-white">${resource.name}</p>
+                                </div>
+                                <span class="text-sm text-primary">View &rarr;</span>
+                            </a>
+                        `).join('') : '<p class="text-sm text-slate-500">No resources linked yet.</p>'}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderMessage(message) {
+            const isSent = message.type === 'sent';
+            const bgColor = isSent ? 'bg-primary' : 'bg-slate-700';
+            const alignClass = isSent ? 'ml-auto' : 'mr-auto';
+            const borderRadius = isSent ? 'rounded-tl-xl rounded-b-xl' : 'rounded-tr-xl rounded-b-xl';
+            const senderName = isSent ? 'You' : message.sender;
+            
+            return `
+                <div class="flex ${isSent ? 'justify-end' : 'justify-start'}">
+                    <div class="max-w-xs md:max-w-md my-1 p-3 ${bgColor} ${borderRadius} ${alignClass} text-white transition message-sent-enter message-sent-enter-active">
+                        ${!isSent ? `<p class="text-xs font-semibold text-secondary mb-1">${senderName}</p>` : ''}
+                        <p class="text-sm whitespace-pre-wrap">${message.text}</p>
+                        <p class="text-xs mt-1 opacity-70 text-right">${message.time}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderManageChat(project) {
+            const chatId = project.groupChatId;
+            const chatMessages = MOCK_DATA.messages[chatId] || [];
+
+            return `
+                <div class="flex flex-col h-[500px]">
+                    <div id="project-chat-history" class="flex-grow overflow-y-auto space-y-4 p-2 mb-4 card-base">
+                        ${chatMessages.length > 0 ? chatMessages.map(renderMessage).join('') : '<p class="text-center text-slate-500 pt-10">Start the group conversation!</p>'}
+                    </div>
+
+                    <div class="relative">
+                        <textarea id="project-chat-input" class="project-chat-input w-full p-4 pr-16 rounded-xl bg-slate-700 border border-slate-600 text-white placeholder-slate-400 focus:ring-primary focus:border-primary resize-none min-h-[50px] max-h-[150px]" placeholder="Type a message..." rows="1"></textarea>
+                        <button onclick="addProjectMessage('${chatId}')" class="project-send-button absolute right-3 bottom-3 p-2 rounded-full bg-primary text-white hover:bg-indigo-600 transition disabled:bg-slate-500 disabled:cursor-not-allowed">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor"><use href="#icon-send"></use></svg>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderManageProject() {
+            const project = MOCK_DATA.projects.find(p => p.id === state.detailId);
+            if (!project) return `<div class="p-8 text-center text-red-400">Project not found.</div>`;
+
+            let content = '';
+            switch (state.manageProjectTab) {
+                case 'team':
+                    content = renderManageTeam(project);
+                    break;
+                case 'resources':
+                    content = renderManageResources(project);
+                    break;
+                case 'chat':
+                    content = renderManageChat(project);
+                    break;
+                default:
+                    content = renderManageOverview(project);
+            }
+
+            // Scroll chat to bottom after render if it's the chat tab
+            if (state.manageProjectTab === 'chat') {
+                setTimeout(() => {
+                    const history = document.getElementById('project-chat-history');
+                    if (history) history.scrollTop = history.scrollHeight;
+                    setupProjectChatListeners(); // Setup listeners for input/button after content is rendered
+                }, 50);
+            }
+
+            return `
+                <div class="p-4 sm:p-8 max-w-4xl mx-auto">
+                    <button onclick="setView('project-detail', '${project.id}')" class="text-slate-400 hover:text-white mb-4 text-sm flex items-center">&larr; Back to Project Details</button>
+                    <div class="card-base p-6 sm:p-8">
+                        <h2 class="text-3xl font-extrabold text-white mb-2">Manage: ${project.name}</h2>
+                        <p class="text-primary mb-6">${project.timeline}</p>
+
+                        <div class="flex border-b border-slate-700 mb-6 overflow-x-auto">
+                            ${renderManageTab('overview', 'Overview', 'icon-clipboard')}
+                            ${renderManageTab('team', 'Team', 'icon-users')}
+                            ${renderManageTab('resources', 'Meetups/Resources', 'icon-link')}
+                            ${renderManageTab('chat', 'Group Chat', 'icon-mail')}
+                        </div>
+                        
+                        ${content}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderEvents() {
+            const upcoming = MOCK_DATA.events.filter(e => new Date(e.date) >= new Date());
+            const past = MOCK_DATA.events.filter(e => new Date(e.date) < new Date());
+
+            return `
+                <div class="p-4 sm:p-8 max-w-7xl mx-auto">
+                    <h1 class="text-3xl font-extrabold text-white mb-6">Campus Events & Workshops</h1>
+                    <p class="text-slate-400 mb-8">Discover and register for upcoming academic, tech, and networking opportunities.</p>
+
+                    <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-primary"><use href="#icon-zap"></use></svg>
+                        Upcoming Events (${upcoming.length})
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+                        ${upcoming.map((e, i) => renderEventCard(e, i)).join('')}
+                    </div>
+
+                    <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-slate-500"><use href="#icon-clock"></use></svg>
+                        Past Events (${past.length})
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        ${past.map((e, i) => renderEventCard(e, i, true)).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderEventCard(event, index, isPast = false) {
+            const isBookmarked = state.bookmarkedEvents.includes(event.id);
+            const bookmarkIconClass = isBookmarked ? 'fill-red-500 text-red-500' : 'text-slate-400 hover:text-red-500';
+            const imgQuery = encodeURIComponent(event.title.split(' ')[0]);
+
+            return `
+                <div class="card-base hover:border-primary transition duration-300 cursor-pointer stagger-item ${isPast ? 'opacity-70' : ''}" onclick="setView('event-detail', '${event.id}')" style="animation-delay: ${index * 0.1}s;">
+                    <div class="project-image-container rounded-t-xl overflow-hidden">
+                        <img src="https://picsum.photos/seed/${imgQuery}/400/200" alt="${event.title}" class="project-image w-full h-32 object-cover">
+                    </div>
+                    <div class="p-5">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-white line-clamp-2">${event.title}</h3>
+                            <button onclick="event.stopPropagation(); toggleBookmark('${event.id}')" class="flex-shrink-0 p-1 rounded-full hover:bg-slate-700 transition">
+                                <svg class="w-6 h-6 ${bookmarkIconClass}"><use href="#icon-heart"></use></svg>
+                            </button>
+                        </div>
+                        <p class="text-sm text-primary mb-3">${event.host}</p>
+                        <div class="flex items-center text-sm text-slate-400 mb-4 space-x-4">
+                            <div class="flex items-center">
+                                <svg class="w-4 h-4 mr-1"><use href="#icon-calendar"></use></svg>
+                                <span>${new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                            </div>
+                            <div class="flex items-center">
+                                <svg class="w-4 h-4 mr-1"><use href="#icon-clock"></use></svg>
+                                <span>${event.time}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between items-center pt-3 border-t border-slate-700">
+                            ${isPast ? renderTag('Past', 'bg-slate-600/30', 'text-slate-400') : renderTag('Open', 'bg-primary/30', 'text-primary')}
+                            <button onclick="setView('event-detail', '${event.id}')" class="bg-primary text-white text-sm font-medium py-1 px-4 rounded-full hover:bg-indigo-600 transition"> View Details </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderEventDetail() {
+            const event = MOCK_DATA.events.find(e => e.id === state.detailId);
+            if (!event) return `<div class="p-8 text-center text-red-400">Event not found.</div>`;
+
+            const isBookmarked = state.bookmarkedEvents.includes(event.id);
+            const isRegistered = state.registeredEvents.includes(event.id);
+            const heartClass = isBookmarked ? 'fill-red-500 text-red-500' : 'text-slate-400 hover:text-red-500';
+            const imgQuery = encodeURIComponent(event.title.split(' ')[0]);
+            const eventJson = JSON.stringify(event).replace(/"/g, '&quot;');
+            const isUpcoming = new Date(event.date) >= new Date();
+
+            let actionButton;
+            if (isRegistered) {
+                actionButton = `<button disabled class="bg-secondary text-slate-900 font-bold py-3 px-6 rounded-full disabled:opacity-100 cursor-default flex-1">Registered!</button>`;
+            } else if (!isUpcoming) {
+                actionButton = `<button disabled class="bg-slate-500 text-white font-bold py-3 px-6 rounded-full disabled:opacity-100 cursor-default flex-1">Event Passed</button>`;
+            } else {
+                actionButton = `<button onclick="handleRegister('${event.id}')" class="bg-primary hover:bg-indigo-600 text-white font-bold py-3 px-6 rounded-full transition duration-300 flex-1">Register Now</button>`;
+            }
+
+            return `
+                <div class="p-4 sm:p-8 max-w-4xl mx-auto">
+                    <button onclick="setView('events')" class="text-slate-400 hover:text-white mb-4 text-sm flex items-center">&larr; Back to Events</button>
+                    <div class="card-base p-6 sm:p-8 mb-8">
+                        <div class="project-image-container mb-6 rounded-xl overflow-hidden">
+                            <img src="https://picsum.photos/seed/${imgQuery}/800/300" alt="${event.title}" class="project-image w-full h-48 object-cover">
+                        </div>
+                        
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <h2 class="text-4xl font-extrabold text-white mb-2">${event.title}</h2>
+                                <p class="text-xl text-primary font-semibold">${event.host}</p>
+                            </div>
+                            <div class="flex space-x-3">
+                                <button onclick="toggleBookmark('${event.id}')" class="p-3 rounded-full card-base hover:bg-slate-700 transition">
+                                    <svg class="w-6 h-6 ${heartClass}"><use href="#icon-heart"></use></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex space-x-4 mb-8">
+                            ${actionButton}
+                        </div>
+
+                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                            ${renderInfoChip('icon-calendar', 'Date', new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }))}
+                            ${renderInfoChip('icon-clock', 'Time', event.time)}
+                            ${renderInfoChip('icon-map-pin', 'Location', event.location)}
+                            ${renderInfoChip('icon-users', 'Slots', `${event.slots}/${event.totalSlots}`)}
+                        </div>
+
+                        <h3 class="text-2xl font-bold text-white mb-4 border-b border-slate-700 pb-2">Details</h3>
+                        <p class="text-slate-300 mb-6">${event.description}</p>
+                        
+                        <div class="flex justify-between items-center mb-3 pt-6 border-t border-slate-700">
+                            <h3 class="text-2xl font-bold text-white">Event Enhancements</h3>
+                            <button onclick="generateEventSuggestions(${eventJson})" class="bg-slate-700 text-white text-sm font-medium py-1 px-3 rounded-full hover:bg-slate-600 transition">
+                                ${state.isEventSuggestionsLoading ? 'Generating...' : 'Suggest Ideas with AI'}
+                            </button>
+                        </div>
+                        <div class="card-base p-4 border-l-4 border-secondary">
+                            <div class="text-slate-300 italic whitespace-pre-wrap">
+                                ${state.eventSuggestions || (state.isEventSuggestionsLoading ? 'AI is brainstorming ideas...' : 'Click "Suggest Ideas with AI" to get creative ways to improve this event.')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderMeetups() {
+            const confirmed = MOCK_DATA.meetups.filter(m => m.status === 'Confirmed');
+            const pending = MOCK_DATA.meetups.filter(m => m.status === 'Pending');
+
+            return `
+                <div class="p-4 sm:p-8 max-w-4xl mx-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <h1 class="text-3xl font-extrabold text-white">My Meetups & Study Groups</h1>
+                        <button onclick="setView('create-meetup')" class="bg-primary hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-full transition duration-300 flex items-center">
+                            <svg class="w-5 h-5 mr-1"><use href="#icon-plus"></use></svg>
+                            Schedule New
+                        </button>
+                    </div>
+                    <p class="text-slate-400 mb-8">Manage scheduled and pending collaborative meetings with your peers.</p>
+                    
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-secondary border-b border-slate-700 pb-3 mb-4">Confirmed Meetups (${confirmed.length})</h2>
+                        <div class="space-y-4">
+                            ${confirmed.map(meetup => `
+                                <div class="p-4 bg-slate-800 rounded-lg border-l-4 border-secondary flex justify-between items-center">
+                                    <div>
+                                        <p class="font-semibold text-white">${meetup.title}</p>
+                                        <p class="text-sm text-slate-400">${meetup.time} at ${meetup.location}</p>
+                                    </div>
+                                    ${renderTag(meetup.status, 'bg-secondary/30', 'text-secondary')}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-yellow-500 border-b border-slate-700 pb-3 mb-4">Pending Meetups (${pending.length})</h2>
+                        <div class="space-y-4">
+                            ${pending.map(meetup => `
+                                <div class="p-4 bg-slate-800 rounded-lg border-l-4 border-yellow-500 flex justify-between items-center">
+                                    <div>
+                                        <p class="font-semibold text-white">${meetup.title}</p>
+                                        <p class="text-sm text-slate-400">${meetup.time} at ${meetup.location}</p>
+                                    </div>
+                                    <button class="bg-yellow-500 text-slate-900 text-sm font-medium py-1 px-3 rounded-full hover:bg-yellow-400 transition">Respond</button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderMessages() {
+            const messages = MOCK_DATA.messages.list;
+            const unreadCount = messages.filter(m => m.unread).length;
+
+            return `
+                <div class="p-4 sm:p-8 max-w-4xl mx-auto">
+                    <h1 class="text-3xl font-extrabold text-white mb-6">Messages ${unreadCount > 0 ? `<span class="text-primary">(${unreadCount} Unread)</span>` : ''}</h1>
+                    <p class="text-slate-400 mb-8">Direct messages and project group chats.</p>
+                    
+                    <div class="card-base divide-y divide-slate-700">
+                        ${messages.map(message => `
+                            <div onclick="setView('message-detail', '${message.id}')" class="p-4 flex items-center justify-between hover:bg-slate-700/50 transition cursor-pointer">
+                                <div class="flex items-center space-x-4">
+                                    <div class="relative">
+                                        <img src="https://placehold.co/128x128/3B82F6/ffffff?text=${message.sender.charAt(0)}" alt="${message.sender}" class="w-10 h-10 rounded-full object-cover">
+                                        ${message.unread ? '<span class="absolute top-0 right-0 block h-3 w-3 rounded-full ring-2 ring-slate-800 bg-primary"></span>' : ''}
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold ${message.unread ? 'text-white' : 'text-slate-300'}">${message.sender}</p>
+                                        <p class="text-sm ${message.unread ? 'text-primary' : 'text-slate-400'} truncate w-64 md:w-auto">${message.subject}</p>
+                                    </div>
+                                </div>
+                                <span class="text-xs text-slate-500">${message.time}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderMessageDetail() {
+            const message = MOCK_DATA.messages.list.find(m => m.id === state.detailId);
+            const chatId = state.detailId;
+            const chatMessages = MOCK_DATA.messages[chatId] || [];
+
+            if (!message) return `<div class="p-8 text-center text-red-400">Message not found.</div>`;
+            
+            // Mark as read
+            message.unread = false;
+
+            return `
+                <div class="p-4 sm:p-8 max-w-4xl mx-auto">
+                    <button onclick="setView('messages')" class="text-slate-400 hover:text-white mb-4 text-sm flex items-center">&larr; Back to Inbox</button>
+                    <div class="card-base p-6 sm:p-8">
+                        <div class="border-b border-slate-700 pb-4 mb-4">
+                            <h2 class="text-xl font-bold text-white">${message.subject}</h2>
+                            <p class="text-sm text-primary">From: ${message.sender}</p>
+                        </div>
+                        
+                        <div id="chat-history" class="flex flex-col h-[500px] overflow-y-auto space-y-4 p-2 mb-4">
+                            ${chatMessages.length > 0 ? chatMessages.map(renderMessage).join('') : '<p class="text-center text-slate-500 pt-10">No messages yet. Start the conversation!</p>'}
+                        </div>
+
+                        <div class="relative">
+                            <textarea id="message-input" class="message-input w-full p-4 pr-16 rounded-xl bg-slate-700 border border-slate-600 text-white placeholder-slate-400 focus:ring-primary focus:border-primary resize-none min-h-[50px] max-h-[150px]" placeholder="Reply..." rows="1"></textarea>
+                            <button onclick="addMessage('${chatId}')" class="send-button absolute right-3 bottom-3 p-2 rounded-full bg-primary text-white hover:bg-indigo-600 transition disabled:bg-slate-500 disabled:cursor-not-allowed">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor"><use href="#icon-send"></use></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderProfile() {
+            const profile = MOCK_DATA.profile;
+            const connections = MOCK_DATA.people.filter(p => state.connections.includes(p.id));
+            
+            // Check if user has uploaded a file or completed onboarding to get their name
+            const userNameDisplay = profile.name === 'New User' ? state.userEmail || profile.name : profile.name;
+
+            return `
+                <div class="p-4 sm:p-8 max-w-4xl mx-auto">
+                    <h1 class="text-3xl font-bold text-white mb-8">My Profile</h1>
+
+                    <div class="card-base p-6 mb-8 flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                        <div class="w-24 h-24 rounded-full border-4 border-secondary flex items-center justify-center flex-shrink-0">
+                            <img src="${profile.image}" alt="${profile.name}" class="w-full h-full rounded-full object-cover">
+                        </div>
+                        <div class="flex-grow text-center sm:text-left">
+                            <h2 class="text-3xl font-extrabold text-white">${userNameDisplay}</h2>
+                            <p class="text-primary font-semibold">${profile.role} - ${profile.course || 'Unspecified'}</p>
+                            <p class="text-slate-400 mt-1">${profile.college || 'College/Department Unspecified'}</p>
+                            <div class="flex items-center justify-center sm:justify-start text-sm text-yellow-500 mt-2">
+                                <svg class="w-4 h-4 mr-1"><use href="#icon-zap"></use></svg>
+                                <span>${profile.status}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="card-base p-6">
+                            <h3 class="text-2xl font-bold text-white mb-4 border-b border-slate-700 pb-2">Skills & Expertise</h3>
+                            <div class="flex flex-wrap gap-3 mb-6">
+                                ${profile.skills.length > 0 ? profile.skills.map(skill => renderTag(skill, 'bg-primary/30', 'text-primary')).join('') : '<p class="text-slate-500">No skills added yet.</p>'}
+                            </div>
+
+                            <h3 class="text-2xl font-bold text-white mb-4 border-b border-slate-700 pb-2">Interests</h3>
+                            <div class="flex flex-wrap gap-3 mb-6">
+                                ${profile.hobbies.length > 0 ? profile.hobbies.map(hobby => renderTag(hobby, 'bg-secondary/30', 'text-secondary')).join('') : '<p class="text-slate-500">No interests added yet.</p>'}
+                            </div>
+
+                            ${profile.portfolio ? `
+                                <div class="mt-6 border-t border-slate-700 pt-4">
+                                    <h3 class="text-xl font-bold text-white mb-3">Portfolio</h3>
+                                    <a href="${profile.portfolio}" target="_blank" class="flex items-center space-x-2 text-primary hover:text-white transition">
+                                        <svg class="w-5 h-5"><use href="#icon-link"></use></svg>
+                                        <span>View Portfolio/LinkedIn</span>
+                                    </a>
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <div class="card-base p-6">
+                            <h3 class="text-2xl font-bold text-white mb-4 border-b border-slate-700 pb-2">My Connections (${connections.length})</h3>
+                            <div class="space-y-4 max-h-96 overflow-y-auto">
+                                ${connections.length > 0 ? connections.map(person => `
+                                    <div onclick="setView('people-detail', '${person.id}')" class="p-3 card-base flex justify-between items-center hover:bg-slate-700/50 transition cursor-pointer">
+                                        <div class="flex items-center space-x-3">
+                                            <img src="${person.image}" alt="${person.name}" class="w-8 h-8 rounded-full object-cover">
+                                            <div>
+                                                <p class="font-semibold text-white">${person.name}</p>
+                                                <p class="text-xs text-slate-400">${person.role}</p>
+                                            </div>
+                                        </div>
+                                        ${renderTag('Connected', 'bg-secondary/30', 'text-secondary')}
+                                    </div>
+                                `).join('') : '<p class="text-slate-500">You haven\'t connected with anyone yet.</p>'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderPeopleSearch() {
+            // Initiate AI suggestions on first load
+            if (!state.aiSuggestions && !state.isAiSuggestionsLoading) {
+                generateAiSuggestions();
+            }
+
+            const suggestionsMap = new Map(state.aiSuggestions?.map(s => [s.id, s]) || []);
+            let usersToDisplay = MOCK_DATA.people.filter(p => p.id !== 'u0'); // Exclude self (using mock 'u0' as the default user ID)
+            
+            if (state.activePeopleTab === 'ai') {
+                // Filter to only display users who were successfully suggested by AI
+                const suggestedIds = new Set(suggestionsMap.keys());
+                usersToDisplay = MOCK_DATA.people.filter(p => suggestedIds.has(p.id) && p.id !== 'u0');
+            }
+
+            return `
+                <div class="p-4 sm:p-8 max-w-4xl mx-auto">
+                    <h1 class="text-3xl font-bold text-white mb-6">People Search & AI Match</h1>
+                    <p class="text-slate-400 mb-8">Find collaborators, faculty, and experts by specialty.</p>
+                    
+                    <div class="flex mb-8">
+                        <input type="text" class="flex-grow p-3 rounded-l-lg bg-slate-700 border border-slate-600 text-white placeholder-slate-400 focus:ring-primary focus:border-primary" placeholder="Search by name, skill, or department">
+                        <button class="bg-primary text-white p-3 rounded-r-lg hover:bg-indigo-600 transition">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor"><use href="#icon-search"></use></svg>
+                        </button>
+                    </div>
+
+                    <div class="flex border-b border-slate-700 mb-6">
+                        <button onclick="setActivePeopleTab('all')" class="py-2 px-4 ${state.activePeopleTab === 'all' ? 'border-b-2 border-primary text-primary' : 'text-slate-400 hover:text-white'}">
+                            All People
+                        </button>
+                        <button onclick="setActivePeopleTab('ai')" class="py-2 px-4 ${state.activePeopleTab === 'ai' ? 'border-b-2 border-secondary text-secondary' : 'text-slate-400 hover:text-white'} flex items-center">
+                            AI Suggestions 
+                            ${state.isAiSuggestionsLoading ? `<svg class="w-4 h-4 ml-2 animate-spin text-secondary"><use href="#icon-zap"></use></svg>` : ''}
+                        </button>
+                    </div>
+
+                    <div class="space-y-4">
+                        ${state.activePeopleTab === 'ai' && state.isAiSuggestionsLoading ? 
+                            `<div class="text-center p-10 card-base"><p class="text-white flex items-center justify-center"><svg class="w-5 h-5 mr-2 animate-spin text-secondary"><use href="#icon-zap"></use></svg> Generating smart matches...</p></div>` :
+                            usersToDisplay.map((person, index) => renderPersonCard(person, suggestionsMap.get(person.id), index)).join('')
+                        }
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderPersonCard(person, aiData, index) {
+            const isConnected = state.connections.includes(person.id);
+            const score = aiData?.score || 0;
+            const progressColor = getProgressColor(score);
+            const scoreBar = aiData ? `
+                <div class="w-full">
+                    <p class="text-xs text-slate-400 mb-1">AI Match Score: <span class="font-bold text-white">${score}%</span></p>
+                    <div class="score-bar w-full">
+                        <div class="score-fill ${progressColor}" style="width: ${score}%;"></div>
+                    </div>
+                </div>
+            ` : '';
+            
+            return `
+                <div onclick="setView('people-detail', '${person.id}')" class="p-4 card-base flex justify-between items-start hover:border-primary transition duration-300 cursor-pointer stagger-item" style="animation-delay: ${index * 0.1}s;">
+                    <div class="flex items-center space-x-4 flex-grow">
+                        <img src="${person.image}" alt="${person.name}" class="w-12 h-12 rounded-full object-cover border-2 border-primary">
+                        <div class="flex-grow">
+                            <p class="font-semibold text-white">${person.name}</p>
+                            <p class="text-sm text-primary">${person.role} - ${person.specialty}</p>
+                            ${scoreBar}
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col items-end space-y-2 flex-shrink-0 ml-4">
+                        ${isConnected ? renderTag('Connected', 'bg-secondary/30', 'text-secondary') : renderTag('New', 'bg-slate-600/50', 'text-slate-300')}
+                        <button onclick="event.stopPropagation(); setView('people-detail', '${person.id}')" class="bg-primary text-white text-sm py-1 px-3 rounded-full hover:bg-indigo-600 transition">View Profile</button>
+                    </div>
+                </div>
+            `;
+        }
+
+
+        function renderPersonDetail() {
+            const person = MOCK_DATA.people.find(p => p.id === state.detailId);
+            if (!person || person.id === 'u0') return `<div class="p-8 text-center text-red-400">User not found or this is your profile.</div>`;
+            
+            const isConnected = state.connections.includes(person.id);
+            
+            // Get AI match data if available
+            const aiData = state.aiSuggestions ? state.aiSuggestions.find(s => s.id === person.id) : null;
+            const score = aiData?.score || 0;
+            const rationale = aiData?.rationale;
+            const progressColor = getProgressColor(score);
+
+            return `
+                <div class="p-4 sm:p-8 max-w-4xl mx-auto">
+                    <button onclick="setView('people-search')" class="text-slate-400 hover:text-white mb-4 text-sm flex items-center">&larr; Back to Search</button>
+                    <div class="card-base p-6 sm:p-8 mb-8">
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="flex items-center space-x-6">
+                                <img src="${person.image}" alt="${person.name}" class="w-20 h-20 rounded-full object-cover border-4 border-primary">
+                                <div>
+                                    <h2 class="text-3xl font-extrabold text-white">${person.name}</h2>
+                                    <p class="text-primary font-semibold">${person.role}</p>
+                                    <p class="text-slate-400">${person.specialty}</p>
+                                    <p class="text-sm text-yellow-500 mt-1">${person.status}</p>
+                                </div>
+                            </div>
+                            <button onclick="handleConnectToggle('${person.id}')" class="bg-primary text-white font-semibold py-2 px-4 rounded-full hover:bg-indigo-600 transition">
+                                ${isConnected ? 'Disconnect' : 'Connect'}
+                            </button>
+                        </div>
+                        
+                        ${aiData ? `
+                            <h3 class="text-2xl font-bold text-white mb-4 border-b border-slate-700 pb-2 flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-secondary"><use href="#icon-zap"></use></svg>
+                                AI Compatibility Score
+                            </h3>
+                            <div class="card-glow p-4 mb-6">
+                                <p class="text-sm text-white mb-2">Score: <span class="text-2xl font-bold">${score}%</span></p>
+                                <div class="score-bar h-4 mb-3">
+                                    <div class="score-fill ${progressColor}" style="width: ${score}%;"></div>
+                                </div>
+                                <p class="text-sm text-slate-300">Rationale: ${rationale}</p>
+                            </div>
+                        ` : ''}
+
+                        <h3 class="text-2xl font-bold text-white mb-4 border-b border-slate-700 pb-2">Expertise</h3>
+                        <div class="flex flex-wrap gap-3 mb-6">
+                            ${person.skills.map(skill => renderTag(skill, 'bg-primary/30', 'text-primary')).join('')}
+                        </div>
+
+                        <div class="mt-6 pt-4 border-t border-slate-700">
+                            <button class="bg-secondary hover:bg-teal-600 text-slate-900 font-semibold py-3 px-6 rounded-full transition duration-300">
+                                Send Message
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderSplash() {
+            return `
+                <div class="min-h-screen flex flex-col items-center justify-center p-4">
+                    <div class="text-center">
+                        <div class="flex justify-center items-center text-primary mb-6">
+                            <svg class="w-12 h-12"><use href="#icon-users"></use></svg>
+                            <h1 class="text-5xl font-extrabold ml-3">MAHE Collab Hub</h1>
+                        </div>
+                        <p class="text-xl text-slate-300 mb-8 max-w-lg">
+                            The platform for students, faculty, and alumni to find project collaborators, form study groups, and connect across departments.
+                        </p>
+                        <button onclick="setView('onboarding-verify')" class="bg-primary hover:bg-indigo-600 text-white font-bold py-3 px-8 rounded-full text-lg transition duration-300 shadow-xl shadow-primary/30">
+                            Get Started
+                        </button>
+                        <p class="text-sm text-slate-500 mt-4">Connect. Create. Innovate.</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderOnboardingVerify() {
+            return `
+                <div class="min-h-screen flex flex-col items-center justify-center p-4">
+                    <div class="text-center mb-10">
+                        <div class="flex justify-center items-center text-primary mb-3">
+                            <svg class="w-10 h-10"><use href="#icon-user"></use></svg>
+                        </div>
+                        <h1 class="text-3xl font-extrabold text-white">Verify Your Identity</h1>
+                        <p class="text-slate-400 mt-2">Enter your university email and the demo OTP to proceed.</p>
+                    </div>
+                    <div class="card-base p-8 w-full max-w-md">
+                        <div class="mb-4">
+                            <label for="onboard-email" class="block text-sm font-medium text-slate-300 mb-1 text-left">MAHE Email</label>
+                            <input type="email" id="onboard-email" class="w-full p-3 rounded-lg bg-slate-700 border border-slate-600 text-white placeholder-slate-400 focus:ring-secondary focus:border-secondary" placeholder="your.name@mahe.edu" value="">
+                        </div>
+                        <div class="mb-6">
+                            <label for="onboard-otp" class="block text-sm font-medium text-slate-300 mb-1 text-left">OTP (Use 123456 for Demo)</label>
+                            <input type="text" id="onboard-otp" maxlength="6" class="w-full p-3 rounded-lg bg-slate-700 border border-slate-600 text-white placeholder-slate-400 focus:ring-secondary focus:border-secondary" placeholder="123456" value="">
+                        </div>
+                        <button onclick="handleOnboardingVerifySubmit()" class="w-full bg-primary hover:bg-indigo-600 text-white font-semibold py-3 rounded-lg transition duration-300"> Verify & Continue </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderOnboarding() {
+            return `
+                <div class="p-4 sm:p-8 max-w-4xl mx-auto">
+                    <h1 class="text-3xl font-extrabold text-white mb-2">Set Up Your Profile</h1>
+                    <p class="text-slate-400 mb-8">Tell us about your background to get the best collaboration matches.</p>
+                    <div class="card-base p-6 sm:p-8 space-y-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="onboard-name" class="block text-sm font-medium text-slate-300 mb-1">Full Name</label>
+                                <input type="text" id="onboard-name" class="w-full p-3 rounded-lg bg-slate-700 border border-slate-600 text-white placeholder-slate-400 focus:ring-secondary focus:border-secondary" placeholder="Your Full Name" value="">
+                            </div>
+                            <div>
+                                <label for="onboard-role" class="block text-sm font-medium text-slate-300 mb-1">Your Role</label>
+                                <select id="onboard-role" class="w-full p-3 rounded-lg bg-slate-700 border border-slate-600 text-white focus:ring-secondary focus:border-secondary">
+                                    <option value="Student" selected>Student</option>
+                                    <option value="Faculty">Faculty</option>
+                                    <option value="Alumni">Alumni</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="onboard-college" class="block text-sm font-medium text-slate-300 mb-1">College/Dept</label>
+                                <input type="text" id="onboard-college" class="w-full p-3 rounded-lg bg-slate-700 border border-slate-600 text-white placeholder-slate-400 focus:ring-secondary focus:border-secondary" placeholder="MIT, School of Design, etc." value="">
+                            </div>
+                            <div>
+                                <label for="onboard-course" class="block text-sm font-medium text-slate-300 mb-1">Course/Specialty</label>
+                                <input type="text" id="onboard-course" class="w-full p-3 rounded-lg bg-slate-700 border border-slate-600 text-white placeholder-slate-400 focus:ring-secondary focus:border-secondary" placeholder="B.Tech CS, M.Sc. Data Science, etc." value="">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="onboard-skills" class="block text-sm font-medium text-slate-300 mb-1">Top Skills (comma-separated)</label>
+                            <input type="text" id="onboard-skills" class="w-full p-3 rounded-lg bg-slate-700 border border-slate-600 text-white placeholder-slate-400 focus:ring-secondary focus:border-secondary" placeholder="e.g., Python, Figma, Cloud Computing" value="">
+                        </div>
+                        <div>
+                            <label for="onboard-hobbies" class="block text-sm font-medium text-slate-300 mb-1">Hobbies/Interests (comma-separated, optional)</label>
+                            <input type="text" id="onboard-hobbies" class="w-full p-3 rounded-lg bg-slate-700 border border-slate-600 text-white placeholder-slate-400 focus:ring-secondary focus:border-secondary" placeholder="e.g., Reading Sci-Fi, Badminton, Photography" value="">
+                        </div>
+                        <div>
+                            <label for="onboard-portfolio" class="block text-sm font-medium text-slate-300 mb-1">Portfolio/LinkedIn Link (optional)</label>
+                            <input type="url" id="onboard-portfolio" class="w-full p-3 rounded-lg bg-slate-700 border border-slate-600 text-white placeholder-slate-400 focus:ring-secondary focus:border-secondary" placeholder="https://linkedin.com/in/yourname" value="">
+                        </div>
+                        <button onclick="handleOnboardingSubmit()" class="w-full bg-secondary hover:bg-teal-600 text-slate-900 font-semibold py-3 rounded-lg transition duration-300 mt-4"> Save Profile & Enter Hub </button>
+                    </div>
+                </div>
+            `;
+        }
+
+
+        // --- Other components for brevity ---
+
+        function renderTag(text, bgColor, textColor) {
+            return `<span class="inline-block px-3 py-1 text-xs font-semibold rounded-full ${bgColor} ${textColor}">${text}</span>`;
+        }
+
+        function renderInfoChip(icon, label, value) {
+            return `
+                <div class="flex flex-col items-center p-3 card-base text-center">
+                    <svg class="w-6 h-6 text-primary mb-1"><use href="#${icon}"></use></svg>
+                    <p class="text-xs text-slate-400">${label}</p>
+                    <p class="text-sm font-semibold text-white truncate w-full">${value}</p>
+                </div>
+            `;
+        }
+
+        // --- Main App Logic ---
+
+        function getSidebarContent() {
+            const navItems = [
+                { view: 'dashboard', label: 'Dashboard', icon: 'icon-home' },
+                { view: 'collab-board', label: 'Collab Board', icon: 'icon-layout-grid' },
+                { view: 'events', label: 'Events', icon: 'icon-calendar' },
+                { view: 'meetups', label: 'Meetups', icon: 'icon-briefcase' },
+                { view: 'messages', label: 'Messages', icon: 'icon-mail' },
+                { view: 'people-search', label: 'People Search', icon: 'icon-search' },
+                { view: 'profile', label: 'Profile', icon: 'icon-user' },
+            ];
+
+            const navHtml = navItems.map(item => {
+                const isActive = state.currentView.startsWith(item.view) || (state.currentView === 'create-meetup' && item.view === 'meetups') || (state.currentView.includes('project') && item.view === 'collab-board');
+                const activeClass = isActive ? 'bg-primary/20 text-primary border-primary' : 'text-slate-400 hover:bg-slate-700/50 border-transparent';
+                
+                return `
+                    <a href="#" onclick="event.preventDefault(); setView('${item.view}')" class="flex items-center space-x-3 p-3 rounded-xl border transition ${activeClass}">
+                        <svg class="w-5 h-5"><use href="#${item.icon}"></use></svg>
+                        <span class="font-medium">${item.label}</span>
+                    </a>
+                `;
+            }).join('');
+
+            return `
+                <div class="p-6">
+                    <div class="flex items-center text-white mb-8">
+                        <svg class="w-8 h-8 text-secondary"><use href="#icon-users"></use></svg>
+                        <span class="text-xl font-bold ml-3">Collab Hub</span>
+                    </div>
+                    <nav class="space-y-2">
+                        ${navHtml}
+                    </nav>
+                </div>
+            `;
+        }
+
+        function getMobileNavContent(view, active) {
+            const iconMap = {
+                'dashboard': 'icon-home',
+                'collab-board': 'icon-layout-grid',
+                'events': 'icon-calendar',
+                'messages': 'icon-mail',
+                'profile': 'icon-user'
+            };
+            const labelMap = {
+                'dashboard': 'Home',
+                'collab-board': 'Board',
+                'events': 'Events',
+                'messages': 'Messages',
+                'profile': 'Profile'
+            };
+
+            const activeView = active;
+            const activeClass = activeView ? 'text-primary' : 'text-slate-500';
+
+            return `
+                <a href="#" onclick="event.preventDefault(); setView('${view}')" class="flex flex-col items-center ${activeClass} hover:text-white transition">
+                    <svg class="w-6 h-6"><use href="#${iconMap[view]}"></use></svg>
+                    <span class="text-xs mt-1">${labelMap[view]}</span>
+                </a>
+            `;
+        }
+        
+        function updateMobileNav(currentView) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                const view = item.getAttribute('data-view');
+                const isActive = currentView.startsWith(view) || (currentView.includes('project') && view === 'collab-board');
+                item.innerHTML = getMobileNavContent(view, isActive);
+            });
+        }
+
+        function render() {
+            const appDiv = document.getElementById('app');
+            let mainContent = '';
+
+            switch (state.currentView) {
+                case 'splash':
+                    mainContent = renderSplash();
+                    break;
+                case 'onboarding-verify':
+                    mainContent = renderOnboardingVerify();
+                    break;
+                case 'onboarding':
+                    mainContent = renderOnboarding();
+                    break;
+                case 'dashboard':
+                    mainContent = renderDashboard();
+                    break;
+                case 'collab-board':
+                    mainContent = renderCollabBoard();
+                    break;
+                case 'create-project':
+                    mainContent = renderCreateProject();
+                    break;
+                case 'project-detail':
+                    mainContent = renderProjectDetail();
+                    break;
+                case 'manage-project':
+                    mainContent = renderManageProject();
+                    break;
+                case 'events':
+                    mainContent = renderEvents();
+                    break;
+                case 'event-detail':
+                    mainContent = renderEventDetail();
+                    break;
+                case 'meetups':
+                    mainContent = renderMeetups();
+                    break;
+                case 'messages':
+                    mainContent = renderMessages();
+                    break;
+                case 'message-detail':
+                    mainContent = renderMessageDetail();
+                    // Need to wait for render to set up listeners for chat input
+                    setTimeout(() => {
+                        const message = MOCK_DATA.messages.list.find(m => m.id === state.detailId);
+                        if(message) setupChatListeners(state.detailId);
+
+                        // Scroll chat to bottom after render
+                        const history = document.getElementById('chat-history');
+                        if (history) history.scrollTop = history.scrollHeight;
+                    }, 50);
+                    break;
+                case 'profile':
+                    mainContent = renderProfile();
+                    break;
+                case 'people-search':
+                    mainContent = renderPeopleSearch();
+                    break;
+                case 'people-detail':
+                    mainContent = renderPersonDetail();
+                    break;
+                default:
+                    mainContent = renderDashboard();
+            }
+
+            let contentHtml = '';
+            if (['splash', 'onboarding-verify', 'onboarding'].includes(state.currentView)) {
+                // For splash and onboarding, just render content without sidebar
+                contentHtml = mainContent;
+            } else {
+                // For main hub content, include sidebar
+                contentHtml = `
+                    <div class="hidden lg:block fixed left-0 top-0 h-full w-64 card-base z-40">
+                        ${getSidebarContent()}
+                    </div>
+                    <main class="lg:ml-64">
+                        ${mainContent}
+                    </main>
+                `;
+            }
+
+            appDiv.innerHTML = contentHtml;
+            updateMobileNav(state.currentView);
+            
+            // Post-render setup for chat scroll and listeners
+            if (state.currentView === 'manage-project' && state.manageProjectTab === 'chat') {
+                const history = document.getElementById('project-chat-history');
+                if (history) history.scrollTop = history.scrollHeight;
+                setupProjectChatListeners();
+            }
+        }
+
+        // Initialize the app on load
+        window.onload = () => {
+            render();
+            // Automatically transition from splash to onboarding after a delay for demonstration
+            if (state.currentView === 'splash') {
+                setTimeout(() => {
+                    if (state.currentView === 'splash') { // Only transition if user hasn't clicked "Get Started"
+                        setView('onboarding-verify');
+                    }
+                }, 2000); 
+            }
+        };
+
+        // Initialize mobile nav once (content is updated by render() and updateMobileNav())
+        document.querySelectorAll('.nav-item').forEach(item => {
+            const view = item.getAttribute('data-view');
+            item.innerHTML = getMobileNavContent(view, false);
+        });
+    </script>
+</body>
+</html>
